@@ -16,7 +16,8 @@ urls = [ff_rate_url,baa_corporate_bond_url,dollar_index_url,rate_10year_url]
 val_f = []
 
 #対象のワークブックとシートを設定
-wb = openpyxl.load_workbook('analysis.xlsx')
+file_name = 'analysis.xlsx'
+wb = openpyxl.load_workbook(file_name)
 sheet_score = wb.get_sheet_by_name('score')
 sheet_monthly = wb.get_sheet_by_name('monthly_data')
 
@@ -35,7 +36,7 @@ for url in urls:
   print(val_f[n])
   n += 1
 
-#直近と1年前の指標データ　宣言
+#直近と1年前の指標データ　宣言と代入
 ff_rate = val_f[0]
 baa_corporate = val_f[1]
 dollar_index = val_f[2]
@@ -46,64 +47,29 @@ baa_corporate_old = ""
 dollar_index_old = ""
 rate_10year_old = ""
 
+#今月を求める
+now = datetime.datetime.now()
+month = now.strftime('%Y-%m-01')
+#1年前を求める
+y = now.year -1
+year_ago = now.strftime(str(y)+'-%m-01')
 
-# today = datetime.date.today()
-# year = today.year
-# month = today.month
-
-# year_ago = str(year-1) + "-" + str(month) + "-01"
-# new_date = str(year) + "-" + str(month) + "-01"
-
-
-while today.day >= 2:
-  today += datetime.timedelta(days=-1)
-
-old_year = today + datetime.timedelta(days=-365)
-old_year_str = old_year.strftime('%Y-%m-%d')
-
-# sheet_monthlyから1年前のデータを探す
-print("1年前のデータを取得中...")
-row = sheet_monthly.max_row + 1
-old_month_row = row - 12
-# for i in range(2,sheet_monthly.max_row + 1):
-  
-#   match_cell = sheet_monthly.cell(row=i,column=1).value
-
-#   if old_year_str == "2018-05-01":
-ff_rate_old = sheet_monthly.cell(row=old_month_row,column=2).value
-baa_corporate_old = sheet_monthly.cell(row=old_month_row,column=6).value
-dollar_index_old = sheet_monthly.cell(row=old_month_row,column=7).value
-rate_10year_old = sheet_monthly.cell(row=old_month_row,column=4).value
-
-# print("///today///")
-# print(today)
-# print("///max_row///")
-# print(sheet_monthly.max_row +1)
-# print("///match_cell///")
-# print(match_cell)
-# print(type(match_cell))
-# print("///old_year///")
-# print(old_year)
-# print(type(old_year))
-# print("///old_year_str///")
-# print(old_year_str)
-# print(type(old_year_str))
-# print("///ff_rate_old///")
-# print(ff_rate_old)
-#   cell = sheet_monthly.cell(row=i,column=1).value
-#   cell_str = cell.strftime('%Y-%m-%d')
-#   if old_year_str == cell_str:
-    # ff_rate_old = sheet_monthly.cell(row=i,column=2).value
-    # baa_corporate_old = sheet_monthly.cell(row=i,column=6).value
-    # dollar_index_old = sheet_monthly.cell(row=i,column=7).value
-    # rate_10year_old = sheet_monthly.cell(row=i,column=4).value
+#1年前のデータを検索
+for row in range(2,sheet_monthly.max_row + 1):
+  c = sheet_monthly.cell(row=row,column=1).value
+  cell = c.strftime('%Y-%m-%d')
+  if cell == year_ago:
+    ff_rate_old = sheet_monthly.cell(row=row,column=2).value
+    baa_corporate_old = sheet_monthly.cell(row=row,column=6).value
+    dollar_index_old = sheet_monthly.cell(row=row,column=7).value
+    rate_10year_old = sheet_monthly.cell(row=row,column=4).value
 
 
 #sheet_monthlyを更新    直近データを入力
 print("直近のデータを書き込み中...")
 new_row = sheet_monthly.max_row + 1
 
-sheet_monthly.cell(row=new_row, column=1).value = today
+sheet_monthly.cell(row=new_row, column=1).value = month
 sheet_monthly.cell(row=new_row, column=2).value = ff_rate
 sheet_monthly.cell(row=new_row, column=6).value = baa_corporate
 sheet_monthly.cell(row=new_row, column=7).value = dollar_index
@@ -116,18 +82,12 @@ sheet_score.cell(row=10, column=3).value = baa_corporate
 sheet_score.cell(row=14, column=3).value = dollar_index
 sheet_score.cell(row=18, column=3).value = rate_10year
 
-
-# sheet_score.cell(row=5, column=4).value = float(ff_rate_old)
-# sheet_score.cell(row=10, column=4).value = float(baa_corporate_old)
-# sheet_score.cell(row=14, column=4).value = float(dollar_index_old)
-# sheet_score.cell(row=18, column=4).value = float(rate_10year_old)
-
 sheet_score.cell(row=5, column=4).value = ff_rate_old
 sheet_score.cell(row=10, column=4).value = baa_corporate_old
 sheet_score.cell(row=14, column=4).value = dollar_index_old
 sheet_score.cell(row=18, column=4).value = rate_10year_old
 
 
-wb.save('analysis.xlsx')
+wb.save(file_name)
 print("完了")
-subprocess.call(['open','analysis.xlsx'])
+subprocess.call(['open',file_name])
