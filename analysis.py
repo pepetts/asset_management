@@ -11,6 +11,7 @@ ff_rate_url = 'https://fred.stlouisfed.org/series/FEDFUNDS'   #政策金利
 baa_corporate_bond_url = 'https://fred.stlouisfed.org/series/BAA10Y'    #社債スプレッド
 dollar_index_url = 'https://fred.stlouisfed.org/series/TWEXMMTH'    #ドル指数
 rate_10year_url = 'https://fred.stlouisfed.org/series/DGS10'    #10年債利回り
+target_rate_url = 'https://www.bloomberg.co.jp/quote/FDTR:IND'      #金利誘導目標
 
 urls = [ff_rate_url,baa_corporate_bond_url,dollar_index_url,rate_10year_url]
 val_f = []
@@ -24,7 +25,7 @@ sheet_monthly = wb.get_sheet_by_name('monthly_data')
 sheet_score.cell(row=2,column=2).value = today
 
 print("指標の値を取得中...")
-#各指標の値を取得してくる
+#fredから各指標の値を取得してくる
 n = 0
 for url in urls:
   res = requests.get(url)
@@ -36,6 +37,14 @@ for url in urls:
   print(val_f[n])
   n += 1
 
+#金利誘導目標を取得
+t_rate_res = requests.get(target_rate_url)
+t_rate_html = bs4.BeautifulSoup(t_rate_res.text,'html.parser')
+t_rate_val = t_rate_html.select('#content > div > div > div.basic-quote > div > div.price-container > div.price')
+target_rate = float(t_rate_val[0].text)
+
+print(target_rate)
+
 #直近と1年前の指標データ　宣言と代入
 ff_rate = val_f[0]
 baa_corporate = val_f[1]
@@ -46,6 +55,7 @@ ff_rate_old = ""
 baa_corporate_old = ""
 dollar_index_old = ""
 rate_10year_old = ""
+
 
 #今月を求める
 now = datetime.datetime.now()
@@ -74,6 +84,7 @@ sheet_monthly.cell(row=new_row, column=2).value = ff_rate
 sheet_monthly.cell(row=new_row, column=6).value = baa_corporate
 sheet_monthly.cell(row=new_row, column=7).value = dollar_index
 sheet_monthly.cell(row=new_row, column=4).value = rate_10year
+sheet_monthly.cell(row=new_row, column=3).value = target_rate
 
 
 #sheet_scoreを更新
