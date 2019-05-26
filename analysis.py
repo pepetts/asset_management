@@ -86,7 +86,8 @@ sheet_monthly.cell(row=new_row, column=7).value = dollar_index
 sheet_monthly.cell(row=new_row, column=4).value = rate_10year
 sheet_monthly.cell(row=new_row, column=3).value = target_rate
 
-
+#長短金利差のセルに計算式を入力
+sheet_monthly.cell(row=new_row, column=5).value = "=D" + str(new_row) + "-C" + str(new_row)
 #sheet_scoreを更新
 sheet_score.cell(row=5, column=3).value = ff_rate
 sheet_score.cell(row=10, column=3).value = baa_corporate
